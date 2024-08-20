@@ -1,0 +1,7 @@
+Multiprocessor.py/
+├── Flask_API.py
+│   ├── Recording.py
+│   └── singleton_user.py
+├── Noise_reduction_pipeline.py
+├── Audio_uploader.py
+└── Audio_receiver.py
