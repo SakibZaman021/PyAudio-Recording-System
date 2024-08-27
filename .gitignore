@@ -31,6 +31,7 @@ MANIFEST
 failed_wav_files/
 input_wav_files/
 output_denoised_files/
+compressed_audio_files/
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.

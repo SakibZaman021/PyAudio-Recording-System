@@ -4,6 +4,7 @@ from threading import Timer, Lock
 from datetime import datetime
 import os
 import logging
+from singleton_user import UserSingleton
 
 INPUT_FOLDER = 'input_wav_files'
 os.makedirs(INPUT_FOLDER, exist_ok=True)
@@ -50,7 +51,7 @@ class AudioRecorder:
             self.stream = self.audio.open(
                 format=pyaudio.paInt16,
                 channels=1,
-                rate=44100,
+                rate=32000,
                 input=True,
                 frames_per_buffer=1024
             )
@@ -96,7 +97,7 @@ class AudioRecorder:
             with wave.open(raw_file_path, "wb") as wf:
                 wf.setnchannels(1)
                 wf.setsampwidth(self.audio.get_sample_size(pyaudio.paInt16))
-                wf.setframerate(44100)
+                wf.setframerate(32000)
                 wf.writeframes(b''.join(self.frames))
 
             logging.info(f"Stopped recording for {self.user.userId}. File saved to {raw_file_path}")

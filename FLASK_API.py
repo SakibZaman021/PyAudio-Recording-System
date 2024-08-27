@@ -2,9 +2,7 @@ from flask import Flask, request, jsonify
 from Recorder_API import AudioRecorder
 from singleton_user import UserSingleton
 import atexit
-from werkzeug.utils import secure_filename
 import logging
-import traceback
 
 # Initialize Flask app and logging
 app = Flask(__name__)
@@ -36,7 +34,7 @@ def start_recording():
 
         # Initialize UserSingleton and AudioRecorder instances
         try:
-            user = UserSingleton.getInstance(user_id, hospital, doctor_id)
+            # user = UserSingleton.getInstance(user_id, hospital, doctor_id)
             recorder = AudioRecorder.getInstance()
         except Exception as e:
             logging.error(f"Error initializing instances: {e}")
@@ -49,7 +47,8 @@ def start_recording():
                 previous_end_time = start_time  # Use the start time of the new patient as the end time of the previous recording
                 recorder.stop_audio(previous_end_time)
                 logging.info(f"Previous recording stopped at {previous_end_time}.")
-
+                
+            user = UserSingleton.getInstance(user_id, hospital, doctor_id)
             logging.info(f"Starting new recording for patient {user_id}.")
             recorder.start_audio(user, start_time, date)
             return jsonify({'message': f'Recording started successfully for patient {user_id}', 'patient_id': user_id}), 200

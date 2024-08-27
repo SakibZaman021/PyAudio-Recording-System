@@ -23,7 +23,11 @@ def upload_audio(fileName):
         return "No selected file", 400
 
     try:
-        filename = secure_filename(fileName) + ".wav"
+        # Ensure the filename ends with .mp3
+        if not fileName.lower().endswith('.mp3'):
+            fileName += '.mp3'
+
+        filename = secure_filename(fileName)
         file_path = Path(UPLOAD_FOLDER) / filename
 
         audio_file.save(file_path)

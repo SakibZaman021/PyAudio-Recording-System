@@ -2,8 +2,9 @@ import os
 import time
 import logging
 import requests
+from Audio_File_Reducer import OUTPUT_FOLDER
 
-OUTPUT_FOLDER = 'output_denoised_files'
+OUTPUT_FOLDER = 'compressed_audio_files'
 UPLOAD_URL_BASE = 'http://localhost:9999/upload-audio/v1'
 
 # Initialize logging
@@ -46,26 +47,20 @@ class Uploader:
                 logging.error(f"Failed to upload {file_path} with status code: {response.status_code}")
         except Exception as e:
             logging.error(f"An error occurred while uploading {file_path}: {e}")
-        #         logging.info(f"Successfully uploaded {file_path}")
-                
-        #         os.remove(file_path)
-        #     else:
-        #         logging.error(f"Failed to upload {file_path} with status code: {response.status_code}")
-        # except Exception as e:
-        #     logging.error(f"An error occurred while uploading {file_path}: {e}")
+       
 
     def process_files(self):
         
         for sound_file_name in os.listdir(self.output_folder):
             
-            if sound_file_name.endswith('.wav'):
+            if sound_file_name.endswith('.mp3'):
                 
                 file_path = os.path.join(self.output_folder, sound_file_name)
                
                 self.upload_file(file_path)
                 
 
-    def scheduler(self, interval=60):
+    def scheduler(self, interval=10):
         while True:
             try:
                 logging.info("Checking for files to upload...")
