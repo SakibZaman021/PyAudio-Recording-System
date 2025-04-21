@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from Recorder_API import AudioRecorder
+from singleton_recorder import AudioRecorder
 from singleton_user import UserSingleton
 import atexit
 import logging
@@ -8,9 +8,70 @@ import logging
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
+# @atexit.register
+# def server_shutdown():
+#     logging.info("Server Closing")
+recorder = AudioRecorder.getInstance()
+recorder.recover_temp_files()
 @atexit.register
 def server_shutdown():
+    if recorder.is_recording:
+        recorder.stop_audio()  # Ensure recording is stopped and saved on shutdown
     logging.info("Server Closing")
+
+# @app.route('/api/record/start', methods=['POST'])
+# def start_recording():
+#     try:
+#         data = request.get_json()
+
+#         # Validate that all required fields are present
+#         required_fields = ["id", "hospital", "doc_id", "start_time", "date"]
+#         if not all(key in data for key in required_fields):
+#             logging.error("Missing required data fields")
+#             return jsonify({'message': 'Missing required data fields'}), 400
+
+#         # Extract relevant data
+#         user_id = data["id"]
+#         hospital = data["hospital"]
+#         doctor_id = data["doc_id"]
+#         start_time = data["start_time"]
+#         date = data["date"]
+
+#         logging.info(f"Received data: {data}")
+
+#         # Initialize UserSingleton and AudioRecorder instances
+#         try:
+#             # user = UserSingleton.getInstance(user_id, hospital, doctor_id)
+#             recorder = AudioRecorder.getInstance()
+#         except Exception as e:
+#             logging.error(f"Error initializing instances: {e}")
+#             return jsonify({'message': 'Error initializing recording components'}), 500
+
+#         # Stop the previous recording and start a new one
+#         try:
+#             if recorder.is_recording:
+#                 logging.info(f"Stopping previous recording.")
+#                 previous_end_time = start_time  # Use the start time of the new patient as the end time of the previous recording
+#                 recorder.stop_audio(previous_end_time)
+#                 logging.info(f"Previous recording stopped at {previous_end_time}.")
+                
+#             user = UserSingleton.getInstance(user_id, hospital, doctor_id)
+#             logging.info(f"Starting new recording for patient {user_id}.")
+#             recorder.start_audio(user, start_time, date)
+#             return jsonify({'message': f'Recording started successfully for patient {user_id}', 'patient_id': user_id}), 200
+
+#         except Exception as e:
+#             logging.error(f"Error during recording operations: {e}")
+#             return jsonify({'message': 'Error during recording operations'}), 500
+
+#     except Exception as e:
+#         logging.error(f"Error in handle_recording function: {e}")
+#         return jsonify({'message': 'An error occurred while starting the recording.'}), 500
+
+import threading
+from datetime import datetime
+
+
 
 @app.route('/api/record/start', methods=['POST'])
 def start_recording():
@@ -32,34 +93,34 @@ def start_recording():
 
         logging.info(f"Received data: {data}")
 
-        # Initialize UserSingleton and AudioRecorder instances
-        try:
-            # user = UserSingleton.getInstance(user_id, hospital, doctor_id)
-            recorder = AudioRecorder.getInstance()
-        except Exception as e:
-            logging.error(f"Error initializing instances: {e}")
-            return jsonify({'message': 'Error initializing recording components'}), 500
+        # Initialize AudioRecorder instance
+        recorder = AudioRecorder.getInstance()
 
-        # Stop the previous recording and start a new one
-        try:
-            if recorder.is_recording:
-                logging.info(f"Stopping previous recording.")
-                previous_end_time = start_time  # Use the start time of the new patient as the end time of the previous recording
-                recorder.stop_audio(previous_end_time)
-                logging.info(f"Previous recording stopped at {previous_end_time}.")
-                
-            user = UserSingleton.getInstance(user_id, hospital, doctor_id)
-            logging.info(f"Starting new recording for patient {user_id}.")
-            recorder.start_audio(user, start_time, date)
-            return jsonify({'message': f'Recording started successfully for patient {user_id}', 'patient_id': user_id}), 200
+        # If a recording is already in progress, stop it and adjust the new start time
+        if recorder.is_recording:
+            logging.info("Stopping current recording before starting a new one.")
+            previous_end_time = datetime.now().strftime("%H_%M")  # End time of the current recording
+            recorder.stop_audio(previous_end_time)
 
-        except Exception as e:
-            logging.error(f"Error during recording operations: {e}")
-            return jsonify({'message': 'Error during recording operations'}), 500
+            # Use the end time of the previous recording as the start time for the new recording
+            start_time = previous_end_time
+            logging.info(f"New recording will start at {start_time}.")
+
+        # Initialize user and start the new recording in a separate thread
+        user = UserSingleton.getInstance(user_id, hospital, doctor_id)
+        
+        # Start recording in a new thread
+        recording_thread = threading.Thread(target=recorder.start_audio, args=(user, start_time, date))
+        recording_thread.daemon = True  # Ensures thread closes when the main program exits
+        recording_thread.start()
+
+        return jsonify({'message': f'Recording started successfully for patient {user_id}', 'patient_id': user_id}), 200
 
     except Exception as e:
-        logging.error(f"Error in handle_recording function: {e}")
+        logging.error(f"Error in start_recording function: {e}")
         return jsonify({'message': 'An error occurred while starting the recording.'}), 500
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

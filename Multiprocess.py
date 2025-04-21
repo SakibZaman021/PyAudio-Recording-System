@@ -15,9 +15,10 @@ if __name__ == "__main__":
     # List of scripts to run
     scripts = [
         'FLASK_API.py',
-        'Audio_Uploader.py',
-        'Audio_Receiver.py',
-        'Noise_reduction_pipeline.py'
+        'Audio_uploader.py'
+        # 'Audio_File_Reducer.py',
+        # 'Audio_Uploader.py'
+       
     ]
 
     # List to hold process objects
