@@ -31,7 +31,7 @@ MONITORED_FOLDER = r"d:\input_wav_files"
 def authenticate_google_drive():
    
     creds = None
-
+    
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 
@@ -50,6 +50,7 @@ def authenticate_google_drive():
     return build('drive', 'v3', credentials=creds)
 
 def upload_file_to_drive(file_path, drive_folder_id):
+
     \
     if not os.path.exists(file_path):
         print(f"File does not exist: {file_path}")
@@ -109,15 +110,14 @@ def monitor_folder():
 
 if __name__ == "__main__":
     monitor_folder()
+    # # Replace 'audio.mp3' with the path of the file you want to upload
+    # file_to_upload = input("Enter the full path of the audio file to upload: ").strip()
 
-# if __name__ == "__main__":
-#     # Replace 'audio.mp3' with the path of the file you want to upload
-#     file_to_upload = input("Enter the full path of the audio file to upload: ").strip()
-
-#     if os.path.exists(file_to_upload):
-#         upload_file_to_drive(file_to_upload, DRIVE_FOLDER_ID)
-#     else:
-#         print("File not found. Please check the path and try again.")
+    # if os.path.exists(file_to_upload):
+    #     upload_file_to_drive(file_to_upload, DRIVE_FOLDER_ID)
+    # else:
+    #     print("File not found. Please check the path and try again.")
+    
 
 
 

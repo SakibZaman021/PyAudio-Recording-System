@@ -350,8 +350,7 @@ class AudioRecorder:
                     logging.info(f"Temporary audio saved to {temp_file_path}")
                 except Exception as e:
                     logging.error(f"Error saving temporary audio: {e}")
-            # Sleep for the save interval
-            for _ in range(self.save_interval * 10):  # Check every 0.1s to allow quick stop
+            for _ in range(self.save_interval * 10):  
                 if not self.is_recording:
                     return
                 time.sleep(0.1)
@@ -374,8 +373,7 @@ class AudioRecorder:
                 dev = self.audio.get_device_info_by_index(i)
                 logging.info(f"Device {i}: {dev['name']}, "
                            f"Input Channels: {dev['maxInputChannels']}")
-
-            # Explicitly specify the input device that supports stereo
+                
             device_index = None
             for i in range(self.audio.get_device_count()):
                 dev = self.audio.get_device_info_by_index(i)
@@ -400,13 +398,10 @@ class AudioRecorder:
             # Start the auto-stop timer (20 minutes)
             self.timer = Timer(20 * 60, self.stop_audio)
             self.timer.start()
-
-            # Start the periodic save thread
             self.save_thread = Thread(target=self._save_temp_audio)
             self.save_thread.daemon = True
             self.save_thread.start()
 
-            # Capture audio in a loop
             while self.is_recording:
                 try:
                     audio_data = self.stream.read(1024, exception_on_overflow=False)
@@ -431,8 +426,6 @@ class AudioRecorder:
             self.stream.stop_stream()
             self.stream.close()
             self.audio.terminate()
-
-            # Save the final audio file
             sound_file_name = f"{self.user.userId}_{self.user.doctorId}_{self.user.hospital}_{self.start_time}_{self.end_time}_{self.date}.wav"
             raw_file_path = os.path.join(INPUT_FOLDER, sound_file_name)
             
@@ -483,9 +476,6 @@ class AudioRecorder:
             if temp_file.startswith("temp_") and temp_file.endswith(".wav"):
                 temp_file_path = os.path.join(TEMP_FOLDER, temp_file)
                 logging.info(f"Found temporary file: {temp_file_path}")
-                # You can decide how to handle recovery (e.g., rename or process further)
-                # For now, just log it
-                # Example: Rename to a final file with an "incomplete" suffix
                 parts = temp_file.split('_')
                 user_id = parts[1]
                 start_time = parts[2]
@@ -497,7 +487,6 @@ class AudioRecorder:
                 logging.info(f"Recovered temporary file to: {recovered_file_path}")
 
     def handle_requests(self):
-        # Check for temporary files on startup
         self.recover_temp_files()
         while True:
             patient_id = input("Enter Patient ID: ")
