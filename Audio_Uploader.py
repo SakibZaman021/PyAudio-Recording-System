@@ -2,14 +2,14 @@ import os
 import time
 import logging
 import requests
-from singleton_recorder import INPUT_FOLDER
+from BASE64_Reconverted import OUTPUT_FOLDER
 from flask import Flask, request, jsonify
 import os
 import logging
 from werkzeug.utils import secure_filename
 from pathlib import Path
 
-INPUT_FOLDER = 'input_wav_files'
+OUTPUT_FOLDER = 'converted_base64_files'
 NGROK_URL = 'http://5b85-34-31-52-216.ngrok-free.app/upload/v1'  # Replace with ngrok URL from pipeline_testing.py
 KAGGLE_API_KEY = os.getenv('3f213bccd7f98dda1198f93ea3d27b74')  # Set in environment variables
 
