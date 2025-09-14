@@ -49,7 +49,7 @@ class AudioRecorder:
                     with wave.open(temp_file_path, "wb") as wf:
                         wf.setnchannels(2)
                         wf.setsampwidth(self.audio.get_sample_size(pyaudio.paInt16))
-                        wf.setframerate(48000)
+                        wf.setframerate(32000)
                         wf.writeframes(b''.join(self.frames))
                     logging.info(f"Temporary audio saved to {temp_file_path}")
                 except Exception as e:
@@ -91,7 +91,7 @@ class AudioRecorder:
             self.stream = self.audio.open(
                 format=pyaudio.paInt16,
                 channels=2,
-                rate=48000,
+                rate=32000,
                 input=True,
                 frames_per_buffer=1024,
                 input_device_index=device_index
@@ -136,7 +136,7 @@ class AudioRecorder:
             with wave.open(raw_file_path, "wb") as wf:
                 wf.setnchannels(2)
                 wf.setsampwidth(self.audio.get_sample_size(pyaudio.paInt16))
-                wf.setframerate(48000)
+                wf.setframerate(32000)
                 wf.writeframes(b''.join(self.frames))
 
             logging.info(f"Stopped recording for {self.user.userId}. File saved to {raw_file_path}")
